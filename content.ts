@@ -54,28 +54,101 @@ function simulateVueClick(el: HTMLElement) {
   })
 }
 
-async function handleSizeChart() {
-  try {
-    const buttonSelector = ".product-intro__size-guide"
-    const sizeTableSelector = "sui-dialog__body" // 👈 target the table directly
 
+// Add selectors for supported domains
+const siteConfigs: {
+  [key: string]: {
+    buttonSelector: string
+    sizeContentLoader: string
+    sizeTableSelector: string
+  }
+} = {
+  "shein.com": {
+    buttonSelector: ".product-intro__size-guide",
+    sizeContentLoader: ".bsc-common-size-table__content_inner-table",
+    sizeTableSelector: ".bsc-common-size-table__content_inner-table"
+  },
+  "macys.com": {
+    buttonSelector: "button.link-sm.margin-left-xxxs", 
+    sizeContentLoader: "table.size-chart-table, img.size-chart-img",
+    sizeTableSelector: "table.size-chart-table, img.size-chart-img"
+  },
+  "gap.com": { //iframe 
+    buttonSelector: "button.size-guide-button", 
+    sizeContentLoader: ".pdp-core-ui-modal.size-guide-modal",
+    sizeTableSelector: ".pdp-core-ui-modal.size-guide-modal"
+  },
+  "nordstrom.com": {
+    buttonSelector: ".gI46s.dls-14kp4cn",
+    sizeContentLoader: ".QGa7g.eQC6D.uU9gY",
+    sizeTableSelector: "table.VyXHE"
+  },
+  "nike.com": { //opened a new window
+    buttonSelector: "a[data-testid=\"pdp_sizeGuide\"]",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "oldnavy.gap.com": { //iframe 
+    buttonSelector: "button.size-guide-button-text", 
+    sizeContentLoader: "iframe#iframe-size-guide",
+    sizeTableSelector: "iframe#iframe-size-guide"
+  },
+  "shop.lululemon.com": { //opened a new window at the same page
+    buttonSelector: "a[data-testid=\"size-guide-link\"]", 
+    sizeContentLoader: "iframe#iframe-size-guide",
+    sizeTableSelector: "iframe#iframe-size-guide"
+  },
+  "victoriassecret.com": {
+  buttonSelector: 'button[data-testid="SizeAndFit"]',
+  sizeContentLoader: 'article.react-cms-component-list.fabric-cms-component-list',
+  sizeTableSelector: 'article.react-cms-component-list.fabric-cms-component-list > *'
+  },
+  "urbanoutfitters.com": {
+    
+  }
+}
+function getSelectorsByDomain(): {
+  buttonSelector: string
+  sizeContentLoader: string
+  sizeTableSelector: string
+} | null {
+  const host = window.location.hostname
+
+  const sortedDomains = Object.keys(siteConfigs).sort((a, b) => b.length - a.length)
+
+  for (const domain of sortedDomains) {
+    if (host.endsWith(domain)) {
+      return siteConfigs[domain]
+    }
+  }
+
+  return null
+}
+
+
+async function handleSizeChart() {
+  const config = getSelectorsByDomain()
+
+  if (!config) {
+    console.log("⚠️ Website not listed in supported domains")
+    return
+  }
+
+  const { buttonSelector,sizeContentLoader, sizeTableSelector } = config
+
+  try {
     console.log("🔍 Waiting for size guide button...")
-    const button = await waitForElement(buttonSelector, 150000)
+    const button = await waitForElement(buttonSelector)
     console.log("✅ Found button, clicking...")
-    // ;(button as HTMLElement).click()
     simulateVueClick(button as HTMLElement)
 
     console.log("⏳ Waiting for size table to load...")
-    const table = await waitForElement(sizeTableSelector, 150000) // ⏱ give more time
-    console.log(document.body.innerHTML)
-
-
+    await waitForElement(sizeContentLoader)
+    // const table = await waitForElement(sizeTableSelector)
+    const table = document.querySelector(sizeTableSelector)
     console.log("📏 Size Chart Table HTML:")
-    // console.log((table as HTMLElement).innerHTML)
-    console.log("📏 Size Chart HTML:", document.querySelector(".sui-dialog")?.innerHTML)
+    console.log("hahahahahhaha",(table as HTMLElement).innerHTML)
   } catch (err) {
-    console.error("❌ fail:", err)
+    console.error("❌ Fail:", err)
   }
 }
-
-handleSizeChart()
