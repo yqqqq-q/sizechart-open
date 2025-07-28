@@ -104,9 +104,92 @@ const siteConfigs: {
   sizeTableSelector: 'article.react-cms-component-list.fabric-cms-component-list > *'
   },
   "urbanoutfitters.com": {
-    
+  buttonSelector: "button.c-pwa-size-guide-link",
+  sizeContentLoader: ".c-pwa-size-guide-table",
+  sizeTableSelector: ".c-pwa-size-guide-table"
+  },
+  "ae.com": {
+    buttonSelector: 'button[data-test-btn="showSizeDetails"]',
+    sizeContentLoader: '._size-chart_lmu52w',
+    sizeTableSelector: '.modal-body.modal-size-details-body'
+  },
+  "anthropologie.com":{
+  buttonSelector: ".c-pwa-size-guide-link",
+  sizeContentLoader: "",
+  sizeTableSelector: ""
+  },
+  "fashionnova.com": {
+    buttonSelector: "button[data-testid='product-size-chart']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "jcrew.com": {
+    buttonSelector: "button:has(.SizeChart__label___K_rgE)", // Or you could use [class*='SizeChart__label']
+    sizeContentLoader: "", 
+    sizeTableSelector: "" 
+  },
+  "pacsun.com": {
+    buttonSelector: ".size-chart a",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "thenorthface.com": {
+    buttonSelector: "#pdp-size-chart",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "asos.com": {
+    buttonSelector: "button[data-testid='size-guide-button']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "hm.com": {
+    buttonSelector: "button[aria-label='Open size guide']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "zara.com": {
+    buttonSelector: "button[data-qa-action='open-interactive-size-guide-accordion']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "adidas.com": {
+    buttonSelector: "button[data-auto-id='size-chart-link']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "bananarepublic.gap.com": {
+    buttonSelector: "button.size-guide-button-text[data-testid='size-guide-button']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "jockey.com": {
+    buttonSelector: "a[data-cyid='open-sizechart-btn']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "express.com": {
+    buttonSelector: "button[title*='Size Chart Button']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "saksfifthavenue.com": {
+    buttonSelector: "button[data-testid='selectionsContainer.sizes.header.sizeGuideButton']",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "bloomingdales.com": {
+    buttonSelector: "button.link-sm.margin-left-xxxs",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
+  },
+  "kohls.com": {
+    buttonSelector: "",
+    sizeContentLoader: "",
+    sizeTableSelector: ""
   }
 }
+// forever21 does not have size, uniqlo need to click twice, kohls.com does not need clikc to open
 function getSelectorsByDomain(): {
   buttonSelector: string
   sizeContentLoader: string
