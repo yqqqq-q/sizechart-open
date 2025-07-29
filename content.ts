@@ -32,14 +32,6 @@ const waitForElement = (selector: string, timeout = 10000): Promise<Element> =>
     }, timeout)
   })
 
-function fireRealClick(el: Element) {
-  const event = new MouseEvent("click", {
-    bubbles: true,
-    cancelable: true,
-    view: window
-  })
-  el.dispatchEvent(event)
-}
 
 function simulateVueClick(el: HTMLElement) {
   ["pointerdown", "mousedown", "mouseup", "pointerup", "click"].forEach((type) => {
