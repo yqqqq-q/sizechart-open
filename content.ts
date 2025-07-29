@@ -43,11 +43,6 @@ function simulateClick(el: HTMLElement) {
       })
     )
   })
-  try {
-    el.click()
-  } catch (err) {
-    console.warn("⚠️ Fallback click() failed:", err)
-  }
 }
 
 // Generalized site config
@@ -58,15 +53,6 @@ type SiteSelectorConfig = {
 }
 
 const siteConfigs: Record<string, SiteSelectorConfig> = {
-  "shein.com": {
-    buttonSelector: ".product-intro__size-guide",
-    sizeContentLoader: ".bsc-common-size-table__content_inner-table",
-    sizeTableSelector: ".bsc-common-size-table__content_inner-table"
-  },
-  "macys.com": {
-    buttonSelector: "button.link-sm.margin-left-xxxs",
-    sizeContentLoader: "table.size-chart-table, img.size-chart-img"
-  },
   // ... additional mappings (keep your existing ones)
 }
 
