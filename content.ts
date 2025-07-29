@@ -13,8 +13,8 @@ window.addEventListener("load", () => {
 
 const waitForElement = (selector: string, timeout = 10000): Promise<Element> =>
   new Promise((resolve, reject) => {
-    const el = document.querySelector(selector)
-    if (el) return resolve(el)
+    const existing = document.querySelector(selector)
+    if (existing) return resolve(existing)
 
     const observer = new MutationObserver(() => {
       const match = document.querySelector(selector)
@@ -28,202 +28,142 @@ const waitForElement = (selector: string, timeout = 10000): Promise<Element> =>
 
     setTimeout(() => {
       observer.disconnect()
-      reject(`⏳⏳Timeout: ${selector} not found`)
+      reject(`⏳ Timeout: ${selector} not found`)
     }, timeout)
   })
 
-
-function simulateVueClick(el: HTMLElement) {
+function simulateClick(el: HTMLElement) {
+  
   ["pointerdown", "mousedown", "mouseup", "pointerup", "click"].forEach((type) => {
     el.dispatchEvent(
-      new PointerEvent(type, {
+      new MouseEvent(type, {
         bubbles: true,
         cancelable: true,
-        composed: true,
-        pointerType: "mouse",
+        composed: true
       })
     )
   })
+  try {
+    el.click()
+  } catch (err) {
+    console.warn("⚠️ Fallback click() failed:", err)
+  }
 }
 
+// Generalized site config
+type SiteSelectorConfig = {
+  buttonSelector: string
+  sizeContentLoader?: string
+  sizeTableSelector?: string
+}
 
-// Add selectors for supported domains
-const siteConfigs: {
-  [key: string]: {
-    buttonSelector: string
-    sizeContentLoader: string
-    sizeTableSelector: string
-  }
-} = {
+const siteConfigs: Record<string, SiteSelectorConfig> = {
   "shein.com": {
     buttonSelector: ".product-intro__size-guide",
     sizeContentLoader: ".bsc-common-size-table__content_inner-table",
     sizeTableSelector: ".bsc-common-size-table__content_inner-table"
   },
   "macys.com": {
-    buttonSelector: "button.link-sm.margin-left-xxxs", 
-    sizeContentLoader: "table.size-chart-table, img.size-chart-img",
-    sizeTableSelector: "table.size-chart-table, img.size-chart-img"
-  },
-  "gap.com": { //iframe 
-    buttonSelector: "button.size-guide-button", 
-    sizeContentLoader: ".pdp-core-ui-modal.size-guide-modal",
-    sizeTableSelector: ".pdp-core-ui-modal.size-guide-modal"
-  },
-  "nordstrom.com": {
-    buttonSelector: ".gI46s.dls-14kp4cn",
-    sizeContentLoader: ".QGa7g.eQC6D.uU9gY",
-    sizeTableSelector: "table.VyXHE"
-  },
-  "nike.com": { //opened a new window
-    buttonSelector: "a[data-testid=\"pdp_sizeGuide\"]",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "oldnavy.gap.com": { //iframe 
-    buttonSelector: "button.size-guide-button-text", 
-    sizeContentLoader: "iframe#iframe-size-guide",
-    sizeTableSelector: "iframe#iframe-size-guide"
-  },
-  "shop.lululemon.com": { //opened a new window at the same page
-    buttonSelector: "a[data-testid=\"size-guide-link\"]", 
-    sizeContentLoader: "iframe#iframe-size-guide",
-    sizeTableSelector: "iframe#iframe-size-guide"
-  },
-  "victoriassecret.com": {
-  buttonSelector: 'button[data-testid="SizeAndFit"]',
-  sizeContentLoader: 'article.react-cms-component-list.fabric-cms-component-list',
-  sizeTableSelector: 'article.react-cms-component-list.fabric-cms-component-list > *'
-  },
-  "urbanoutfitters.com": {
-  buttonSelector: "button.c-pwa-size-guide-link",
-  sizeContentLoader: ".c-pwa-size-guide-table",
-  sizeTableSelector: ".c-pwa-size-guide-table"
-  },
-  "ae.com": {
-    buttonSelector: 'button[data-test-btn="showSizeDetails"]',
-    sizeContentLoader: '._size-chart_lmu52w',
-    sizeTableSelector: '.modal-body.modal-size-details-body'
-  },
-  "anthropologie.com":{
-  buttonSelector: ".c-pwa-size-guide-link",
-  sizeContentLoader: "",
-  sizeTableSelector: ""
-  },
-  "fashionnova.com": {
-    buttonSelector: "button[data-testid='product-size-chart']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "jcrew.com": {
-    buttonSelector: "button:has(.SizeChart__label___K_rgE)", // Or you could use [class*='SizeChart__label']
-    sizeContentLoader: "", 
-    sizeTableSelector: "" 
-  },
-  "pacsun.com": {
-    buttonSelector: ".size-chart a",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "thenorthface.com": {
-    buttonSelector: "#pdp-size-chart",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "asos.com": {
-    buttonSelector: "button[data-testid='size-guide-button']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "hm.com": {
-    buttonSelector: "button[aria-label='Open size guide']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "zara.com": {
-    buttonSelector: "button[data-qa-action='open-interactive-size-guide-accordion']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "adidas.com": {
-    buttonSelector: "button[data-auto-id='size-chart-link']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "bananarepublic.gap.com": {
-    buttonSelector: "button.size-guide-button-text[data-testid='size-guide-button']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "jockey.com": {
-    buttonSelector: "a[data-cyid='open-sizechart-btn']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "express.com": {
-    buttonSelector: "button[title*='Size Chart Button']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "saksfifthavenue.com": {
-    buttonSelector: "button[data-testid='selectionsContainer.sizes.header.sizeGuideButton']",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  },
-  "bloomingdales.com": {
     buttonSelector: "button.link-sm.margin-left-xxxs",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
+    sizeContentLoader: "table.size-chart-table, img.size-chart-img"
   },
-  "kohls.com": {
-    buttonSelector: "",
-    sizeContentLoader: "",
-    sizeTableSelector: ""
-  }
+  // ... additional mappings (keep your existing ones)
 }
-// forever21 does not have size, uniqlo need to click twice, kohls.com does not need clikc to open
-function getSelectorsByDomain(): {
-  buttonSelector: string
-  sizeContentLoader: string
-  sizeTableSelector: string
-} | null {
+
+function getSiteConfig(): SiteSelectorConfig | null {
   const host = window.location.hostname
+  const domains = Object.keys(siteConfigs).sort((a, b) => b.length - a.length)
 
-  const sortedDomains = Object.keys(siteConfigs).sort((a, b) => b.length - a.length)
-
-  for (const domain of sortedDomains) {
+  for (const domain of domains) {
     if (host.endsWith(domain)) {
       return siteConfigs[domain]
     }
   }
-
   return null
 }
 
 
-async function handleSizeChart() {
-  const config = getSelectorsByDomain()
 
+async function handleSizeChart() {
+  let config = getSiteConfig()
+
+  // If no config found, try generic fallback
   if (!config) {
-    console.log("⚠️ Website not listed in supported domains")
+    console.warn("⚠️ Unsupported site. Trying fallback button detection...")
+    const possibleLabels = ["size guide", "size guides", "size chart", "size charts"]
+
+    const genericButton = Array.from(
+      document.querySelectorAll("button, a, div[role='button'], div[data-testid='link'], span")
+    ).find((el) => {
+      const text = el.textContent?.trim().toLowerCase() || ""
+      return possibleLabels.some(label => text.includes(label))
+    })
+
+
+  if (genericButton) {
+    console.log("✅ Found fallback element:", genericButton)
+
+    simulateClick(genericButton as HTMLElement)
+    await new Promise((r) => setTimeout(r, 1500))
+  }
+
+
+    // console.log("button tag",genericButton)
+
+    // if (!genericButton) {
+    //   console.error("❌ No fallback size button found.")
+    //   return
+    // }
+
+    // console.log("✅ Fallback button found. Simulating click...")
+    // simulateClick(genericButton as HTMLElement)
+
+    // // Wait for any modal or size-related content to appear
+    // await new Promise((r) => setTimeout(r, 2000))
+
+    // const fallbackContent = document.querySelector("table, .modal-content, .size-chart")
+    // if (fallbackContent) {
+    //   console.log("📏 Fallback Size Chart Content:")
+    //   console.log((fallbackContent as HTMLElement).innerHTML)
+    // } else {
+    //   console.warn("⚠️ Fallback content not found.")
+    // }
+
     return
   }
 
-  const { buttonSelector,sizeContentLoader, sizeTableSelector } = config
+  // Proceed with configured selectors
+  const { buttonSelector, sizeContentLoader, sizeTableSelector } = config
 
   try {
-    console.log("🔍 Waiting for size guide button...")
+    console.log("🔍 Looking for size guide button...")
     const button = await waitForElement(buttonSelector)
-    console.log("✅ Found button, clicking...")
-    simulateVueClick(button as HTMLElement)
+    console.log("✅ Button found. Simulating click...")
+    simulateClick(button as HTMLElement)
 
-    console.log("⏳ Waiting for size table to load...")
-    await waitForElement(sizeContentLoader)
-    // const table = await waitForElement(sizeTableSelector)
-    const table = document.querySelector(sizeTableSelector)
-    console.log("📏 Size Chart Table HTML:")
-    console.log("hahahahahhaha",(table as HTMLElement).innerHTML)
+    if (sizeContentLoader) {
+      console.log("⏳ Waiting for size content loader...")
+      await waitForElement(sizeContentLoader)
+    }
+
+    let content: HTMLElement | null = null
+
+    if (sizeTableSelector) {
+      content = document.querySelector(sizeTableSelector) as HTMLElement
+    }
+
+    if (!content) {
+      // Generic backup if configured selector fails
+      content = document.querySelector("table, .modal-content, .size-chart, iframe") as HTMLElement
+    }
+
+    if (content) {
+      console.log("📏 Size Chart HTML:")
+      console.log(content.innerHTML)
+    } else {
+      console.warn("⚠️ No content found after button click.")
+    }
   } catch (err) {
-    console.error("❌ Fail:", err)
+    console.error("❌ Error while handling size chart:", err)
   }
 }
